@@ -1,0 +1,85 @@
+plugins {
+	id 'java'
+	id 'application'
+}
+apply plugin: "application"
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	testImplementation('org.junit.jupiter:junit-jupiter:5.6.0')
+}
+
+task test_default_constructor (type: Test) {
+	filter.includeTestsMatching "DefaultConstructorTest"
+}
+
+task test_parameterized_constructor (type: Test) {
+	filter.includeTestsMatching "ParameterizedConstructorTest"
+}
+
+task test_setters_getters (type: Test) {
+	filter.includeTestsMatching "SettersGettersTest"
+}
+
+task test_word_no_vowel (type: Test) {
+	filter.includeTestsMatching "TranslateWordNoVowelTest"
+}
+
+task test_word_vowel_first (type: Test) {
+	filter.includeTestsMatching "TranslateWordVowelFirstTest"
+}
+
+task test_sentence (type: Test) {
+	filter.includeTestsMatching "TranslateSentenceTest"
+}
+
+tasks.withType(Test)
+{
+	useJUnitPlatform()
+	outputs.upToDateWhen {false}
+	testLogging {
+		exceptionFormat = 'full'
+		events "passed", "skipped", "failed", "standardOut", "standardError"
+	}
+}
+
+sourceSets {
+    test.java.srcDirs += 'src'
+
+    if (project.gradle.startParameter.taskNames.contains("test_default_constructor")) {
+        test.java.exclude '**/ParameterizedConstructorTest*'
+        test.java.exclude '**/SettersGettersTest*'
+        test.java.exclude '**/TranslateWordNoVowelTest*'
+        test.java.exclude '**/TranslateWordVowelFirstTest*'
+        test.java.exclude '**/TranslateSentenceTest*'
+    }
+    else if (project.gradle.startParameter.taskNames.contains("test_parameterized_constructor")) {
+        test.java.exclude '**/SettersGettersTest*'
+        test.java.exclude '**/TranslateWordNoVowelTest*'
+        test.java.exclude '**/TranslateWordVowelFirstTest*'
+        test.java.exclude '**/TranslateSentenceTest*'
+	}
+    else if (project.gradle.startParameter.taskNames.contains("test_setters_getters")) {
+        test.java.exclude '**/TranslateWordNoVowelTest*'
+        test.java.exclude '**/TranslateWordVowelFirstTest*'
+        test.java.exclude '**/TranslateSentenceTest*'
+	}
+
+    else if (project.gradle.startParameter.taskNames.contains("test_word_no_vowel")) {
+        test.java.exclude '**/TranslateWordVowelFirstTest*'
+        test.java.exclude '**/TranslateSentenceTest*'
+	}
+    else if (project.gradle.startParameter.taskNames.contains("test_word_vowel_first")) {
+        test.java.exclude '**/TranslateSentenceTest*'
+	}
+}
+
+mainClassName = "UWFLTranslatorTester"
+sourceSets.main.java.srcDirs = ['src/main/java']
+
+run {
+	standardInput = System.in
+}
